@@ -7,6 +7,7 @@ function formatWithSuffix(value) {
 }
 
 let previousBestShare = 0;
+let previousDifficulty = 0;
 
 function notifyNewBestShare(newShare) {
   const shareElem = document.getElementById("bestshare");
@@ -18,6 +19,27 @@ function notifyNewBestShare(newShare) {
   setTimeout(() => {
     shareElem.classList.remove("highlight");
   }, 3000);
+}
+
+function sendDifficultyEmailAlert(newDifficulty) {
+  fetch("https://your-email-endpoint.com/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      subject: "🚨 New High Difficulty Detected",
+      message: `A new difficulty level has been reached: ${newDifficulty}`,
+      recipient: "youremail@example.com"
+    })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Email failed");
+    console.log("Difficulty alert email sent");
+  })
+  .catch(err => {
+    console.error("Error sending difficulty alert:", err);
+  });
 }
 
 function updateStats(address) {
@@ -35,8 +57,14 @@ function updateStats(address) {
         previousBestShare = newBestShare;
       }
 
+      const newDifficulty = parseFloat(data.difficulty);
+      document.getElementById("difficulty").textContent = newDifficulty;
+      if (newDifficulty > previousDifficulty) {
+        previousDifficulty = newDifficulty;
+        sendDifficultyEmailAlert(newDifficulty);
+      }
+
       document.getElementById("shares").textContent = data.shares;
-      document.getElementById("difficulty").textContent = data.difficulty;
       document.getElementById("lastBlock").textContent = data.lastBlock;
       document.getElementById("soloChance").textContent = data.soloChance;
       document.getElementById("hashrate1hr").textContent = data.hashrate1hr;
@@ -45,11 +73,11 @@ function updateStats(address) {
       document.getElementById("chancePerDay").textContent = data.chancePerDay;
       document.getElementById("timeEstimate").textContent = data.timeEstimate;
 
-   //   document.getElementById("lastUpdated").textContent = "Last updated: " + new Date().toLocaleTimeString();
-  //  })
- //   .catch((err) => {
-   //   console.error("Error fetching data:", err);
-     // document.getElementById("lastUpdated").textContent = "Error fetching data";
+      // document.getElementById("lastUpdated").textContent = "Last updated: " + new Date().toLocaleTimeString();
+    })
+    .catch((err) => {
+      console.error("Error fetching data:", err);
+      // document.getElementById("lastUpdated").textContent = "Error fetching data";
     });
 }
 
