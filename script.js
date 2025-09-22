@@ -22,24 +22,17 @@ function notifyNewBestShare(newShare) {
 }
 
 function sendDifficultyEmailAlert(newDifficulty) {
-  fetch("https://your-email-endpoint.com/send", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      subject: "🚨 New High Difficulty Detected",
-      message: `A new difficulty level has been reached: ${newDifficulty}`,
-      recipient: "youremail@example.com"
-    })
+  Email.send({
+    Host: "smtp.gmail.com",
+    Username: "youremail@gmail.com",
+    Password: "your-app-password", // Use Gmail App Password
+    To: "youremail@gmail.com",
+    From: "youremail@gmail.com",
+    Subject: "🚨 New High Difficulty Detected",
+    Body: `A new difficulty level has been reached: ${newDifficulty}`
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Email failed");
-    console.log("Difficulty alert email sent");
-  })
-  .catch(err => {
-    console.error("Error sending difficulty alert:", err);
-  });
+  .then(message => console.log("Email sent:", message))
+  .catch(err => console.error("Email error:", err));
 }
 
 function updateStats(address) {
@@ -72,12 +65,9 @@ function updateStats(address) {
       document.getElementById("chancePerBlock").textContent = data.chancePerBlock;
       document.getElementById("chancePerDay").textContent = data.chancePerDay;
       document.getElementById("timeEstimate").textContent = data.timeEstimate;
-
-      // document.getElementById("lastUpdated").textContent = "Last updated: " + new Date().toLocaleTimeString();
     })
     .catch((err) => {
       console.error("Error fetching data:", err);
-      // document.getElementById("lastUpdated").textContent = "Error fetching data";
     });
 }
 
